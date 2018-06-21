@@ -20,16 +20,41 @@ gcf-call --name funcName --message msg [--attr1 value --attr2 value ...]
 
 Flags:
 -----
+-h --help	: This help message
 -m --message	: The message (data) to pass to the function
 -n --name	: The name of the GCF function to call
--u --usage	: This help message
 --*		: Any argument pairs beginning with -- will get passed as 
 		  attributes to the called function
 ```
 
-This command spares you from having to base64 encode your message or pass JSON on the command line.
+This command spares you from having to base64 encode your message or pass JSON on the command line. Use `functions logs read` to read the node log output.
 
 ## gcf-deploy-pubsub
+Deploy GCF Pubsub functions to the emulator or to the cloud
+```
+Usage:
+-----
+gcf-deploy-pubsub [-l] --name nnnn --topic tttt --entry-point funcName [/path/to/nodefuncdir]
+
+If the codepath is omitted, the current working directory is assumed.
+
+Flags:
+-----
+-e --entry-point	: Code entry point function (required)
+-h --help		: This help message
+-l --local		: Deploy locally, to the emulator [off/cloud]
+-m --memory		: Memory allocation, numeric, in MB (128,256,512,1024,2048) [128]
+-n --name		: GCF name (required)
+-p --project		: The GCP Project to deploy to [current project]
+-s --stage-bucket	: Deployment stage bucket [last utilized stage bucket]
+-t --topic		: Topic channel (required)
+```
+
+`gcf-deploy-pubsub` irons out some of the small differences between deploying to the local emulator and deploying the cloud. 
+
+`--stage-bucket` is only needed for cloud deploys. Since it's highly likely that ever single cloud deploy for a project will use the same storage bucket, the last-used storage bucket is saved and used as the default when the argument is omitted.
+
+`gcf-deploy-pubsub` will switch the current cloud configuration when it runs, so it's dependent on either using gcf-emulate to set up the emulator or on using the configuration pattern described in the emulator docs. (insert link here)
 
 ## gcf-emulate
 

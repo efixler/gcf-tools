@@ -1,0 +1,107 @@
+#!/usr/bin/env bash
+
+### gcf-test
+##
+##	Use this to test GCF background/pubsub node methods locally.
+##
+## 	Usage:
+##
+## gcf-call --name funcName --message msg [--attr1 value --attr2 value ...]
+##
+
+
+function usage {
+cat <<EOF
+gcf-call : Call local GCF Pubsub functions
+
+Usage:
+-----
+gcf-call --name funcName --message msg [--attr1 value --attr2 value ...]
+
+Flags:
+-----
+-m --message	: The message (data) to pass to the function
+-n --name	: The name of the GCF function to call
+--*		: Any argument pairs beginning with -- will get passed as attributes to the called function
+
+See also:
+--------
+gcf-deploy-pubsub
+
+EOF
+}
+
+name=''
+message=''
+
+
+POSITIONAL=()
+ATTRIBUTES=()
+while [[ $# -gt 0 ]]
+do
+    key="$1"
+    case $key in 
+        --name|-n)
+        	name="$2"
+            shift
+            shift
+            ;;
+        --message|-m)
+        	message="$2"
+        	shift
+        	shift
+        	;;
+        --usage|-u)
+        	shift
+        	usage
+        	exit 0
+        	;;
+        --*) 
+        	attr_name=${1:2}
+        	ATTRIBUTES+=("$attr_name")
+        	ATTRIBUTES+=("$2")
+        	shift
+        	shift
+        	;;
+        *)
+            POSITIONAL+=("$1")
+            shift
+            ;;
+    esac
+done
+set -- "${POSITIONAL[@]}"
+
+
+if [ "$name" == '' ]; then
+	echo "Must specify name with --name or -n"
+	exit 1
+fi
+
+if [ "$message" == '' ]; then
+	echo "Must specify message with --message or -m"
+	exit 1
+fi
+
+message_base64=`echo -n $message | base64`
+
+attr=()
+for (( i=0; i<${#ATTRIBUTES[@]}; i=i+2 ));
+do
+	attr+=("\"${ATTRIBUTES[$i]}\":\"${ATTRIBUTES[$i+1]}\"")
+done
+attr_str=$(printf ",%s" "${attr[@]}")
+attr_str=${attr_str:1}
+
+PAYLOAD=$(cat <<TEMPLATE
+{"data":"$message_base64","attributes":{$attr_str}}
+TEMPLATE
+)
+
+functions call $name --data="${PAYLOAD}"
+
+
+# TODO:
+#
+# Add a way to call a cloud deployed function
+
+

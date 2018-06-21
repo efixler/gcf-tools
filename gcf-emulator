@@ -1,0 +1,147 @@
+#!/usr/bin/env bash
+
+## GCF Test Helper
+#
+#
+## Use this command to redirect GCF calls to the local emulator
+## This will connect your local GAE app to the GCF emulator.
+
+function usage {
+cat <<EOF
+gcf-emulator - Install and control a local GCF emulator
+
+Usage:
+-----
+gcf-emulator --init | --start | --stop
+
+Flags:
+-----
+--init	: Install the emulator and set up a mutated version of the current GC config to utilize it
+--start	: Flip to the emulator config and start the emulator
+--stop	: Restore the default config and stop the emulator
+
+EOF
+}
+
+configs=(default emulator) 
+project=''
+account=''
+
+function set_config {
+	`gcloud config configurations activate $1`
+	if [ $? != 0 ]; then
+    	exit $?
+    fi
+    return 0
+}
+
+function init_emulation_config {
+   emucheck="^${configs[1]}[^a-zA-Z0-9_-]"
+   active_check=^[a-zA-Z0-9_-]+.+True
+   project=`gcloud config get-value project 2>/dev/null`
+   account=`gcloud config get-value account 2>/dev/null`
+   gcloud config configurations list | while read line
+		do 
+    		if [[ $line =~ $emucheck ]]; then
+    			echo "emulator config already exists, skipping configuration steps..."
+    			exit 1
+    		elif [[ $line =~ $active_check ]]; then
+    			set -- junk $line
+    			shift
+    			active_conf=$1
+    			# can't pass ^^ out of this bc it's a subshell.
+    			# require 'default' until a solution is found.
+    			if [ $active_conf != "${configs[0]}" ]; then 
+    				echo "Need active config to be 'default', bailing..."
+    				exit 1
+    			fi
+    		fi
+   		done
+    if [ $? != 0 ]; then
+    	return $?
+    fi    
+    `gcloud config configurations create ${configs[1]}`
+    `gcloud config set account ${account}`
+	`gcloud config set project ${project}`
+	`gcloud config set api_endpoint_overrides/cloudfunctions http://localhost:8008/`
+    set_config ${configs[0]}
+    return 0
+}
+
+# node executables running from here create strange output but seem to work
+function init_cfe {
+	nargs='install -g @google-cloud/functions-emulator'
+	`npm $nargs 1>/dev/null`
+	if [ $? != 0 ]; then
+    	echo "GCF emulation requires npm"
+    	exit $?
+    fi   
+    echo "Installed emulator"
+	if [ project == '' ]; then 
+		echo "Can't finish setting up functions; gcloud project not set."
+		exit 1
+	fi
+	`functions config set projectId $project 1>/dev/null`
+	if [ $? != 0 ]; then
+    	echo "Can't set projectId in emulator config"
+    	exit $?
+    fi 
+    echo "Set emulator project to $project"
+	return 0
+}
+
+function init_perl_dependencies {
+	sudo cpan install App::cpanminus
+	cpanm install JSON::XS
+	cpanm install JSON
+	cpanm install MIME::Base64
+	cpanm install Switch
+}
+
+POSITIONAL=()
+while [[ $# -gt 0 ]]
+do
+key="$1"
+case $key in
+	-c|--config)
+	confname="$2"
+	shift
+	shift
+	set_config ${confname}
+	exit $?
+	;;
+	--start)
+	shift
+	set_config ${configs[1]}
+	functions start
+	functions status
+	exit $?
+	;;
+	--stop)
+	shift
+	set_config ${configs[0]}
+	functions stop
+	exit $?
+	;;
+	--init)
+	shift
+	init_emulation_config
+	init_cfe
+	init_perl_dependencies
+	exit $?
+	;;
+	--usage|-u)
+	shift
+	usage
+	exit 0
+	;;
+	*)
+	POSITIONAL+=("$1")
+    shift
+    ;;	
+esac
+done
+set -- "${POSITIONAL[@]}"
+
+echo "Unknown request: $@"
+exit 1

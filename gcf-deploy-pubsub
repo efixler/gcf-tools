@@ -1,0 +1,174 @@
+#!/usr/bin/env bash
+
+function usage {
+cat <<EOF
+gcf-deploy-pubsub : Deploy GCF-Pubsub functions, locally or in the cloud
+
+Usage:
+-----
+gcf-deploy-pubsub [-l] --name nnnn --topic tttt --entry-point funcName [/path/to/nodefuncdir]
+
+If the codepath is omitted, cwd is assumed.
+
+Flags:
+-----
+-e --entry-point	: Code entry point function (required)
+-n --name		: GCF name (required)
+-t --topic		: Topic channel (required)
+
+-l --local		: Deploy locally, to the emulator
+-m --memory		: Memory allocation, numeric, in MB (128,256,512,1024,2048) [128]
+-p --project		: The GCP Project to deploy to [current project]
+-s --stage-bucket	: Deployment stage bucket [last utilitzed stage bucket] (changeme)
+
+See also:
+--------
+gcf-call
+gcf-emulator
+
+Requires:
+--------
+Perl5
+
+EOF
+}
+
+project=''
+stage_bucket=''
+name=''
+topic=''
+entry_point=''
+memory="128"
+local_deploy=0
+config_dir="$(dirname $0)/.gcfconfig"
+### The next two variables reflect a little confusion on my part wrt to which event is the right one to use
+### for functions intended to be triggered by pubsub publish calls. Currently using the remote call for both
+### scenarios, which seems to work; keeping the variables aroud until I'm sure this is correct.
+###
+### See also https://cl.ly/3L2t1y3v2q2e - based on the default-ness of 'google.pubsub.topic.publish' you might think
+### that this is the right event, but it doesn't seem to work in the cloud.
+trigger_event_local=google.pubsub.topic.publish
+trigger_event_remote=providers/cloud.pubsub/eventTypes/topic.publish
+
+POSITIONAL=()
+while [[ $# -gt 0 ]]
+do
+    key="$1"
+    case $key in 
+        --topic|-t)
+        	topic="$2"
+            shift
+            shift
+            ;;
+        --entry-point|-e)
+        	entry_point="$2"
+        	shift
+        	shift
+        	;;
+        --name|-n)
+        	name="$2"
+        	shift
+        	shift
+        	;;
+        --stage-bucket|-s)
+        	stage_bucket="$2"
+        	shift
+        	shift
+        	;;
+        --project|-p)
+        	project="$2"
+        	shift
+        	shift
+        	;;
+        --memory|-m)
+        	memory="$2"
+        	shift
+        	shift
+        	;;
+        --local|-l)
+        	local_deploy=1
+        	shift
+        	;;
+         --usage|-u)
+        	usage
+        	exit 0
+        	shift
+        	;;
+        *)
+            POSITIONAL+=("$1")
+            shift
+            ;;
+    esac
+done
+set -- "${POSITIONAL[@]}"
+
+dir="$1"
+
+if [ "$topic" == '' ]; then
+	echo "Must specify [short] trigger topic with --topic"
+	exit 1
+fi
+if [ "$name" == '' ]; then
+	echo "Must specify name with --name"
+	exit 1
+fi
+if [ "$entry_point" == '' ]; then
+	echo "Must specify entry point with --entry_point"
+	exit 1
+fi
+if [ "$project" == '' ]; then 
+	project=`gcloud config get-value project 2>/dev/null`
+fi
+
+if [ ! -e $config_dir ]; then 
+	mkdir $config_dir
+fi
+if [ ! -d $config_dir ]; then 
+	echo "Could not make config directory, continuing without config storage"
+fi
+
+if [ !local_deploy ]; then 
+	if [ "$stage_bucket" == '' ]; then 
+		stage_bucket=$(<$config_dir/stage-bucket)
+	else 
+		echo -n "$stage_bucket" > "${config_dir}/stage-bucket"
+	fi
+	if [ "$stage_bucket" == '' ]; then 
+		echo "Must specify a stage-bucket for cloud deploys"
+		exit 1
+	fi
+fi
+
+
+if [ "$dir" == "" ]; then
+	dir="$PWD"
+else 
+	dir=`perl -e 'use Cwd "abs_path";print abs_path(shift)' $dir`
+fi
+
+if [ ! -d "$dir" ]; then 
+	echo "$dir must be a directory"
+	exit 1
+elif [ ! -f "$dir/index.js" ]; then 
+	echo "$dir does not appear to contain a GCF pubsub handler (index.js)"
+	exit 1
+fi
+ 
+long_topic="projects/${project}/topics/${topic}"
+memory="${memory}MB"
+
+
+if [ $local_deploy != 0 ]; then 
+	echo "Deploying locally. Setting GCF config to local."
+	gcf-emulator -c emulator
+	functions deploy $name --source $dir --entry-point $entry_point --resource $long_topic --event-type $trigger_event_remote
+else 
+	echo "Deploying to GCloud. Setting GCF config to remote/production infrastructure."
+	gcf-emulator -c default
+	gcloud functions deploy $name --source $dir --entry-point $entry_point --stage-bucket $stage_bucket --trigger-event $trigger_event_remote --trigger-resource $topic --memory $memory
+fi
+
+# TODO:
+# ----
+# Make sure gcf-emulator is available
+# Note: in prior usage, did not include trigger-event when deploying to cloud

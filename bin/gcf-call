@@ -20,9 +20,11 @@ gcf-call --name funcName --message msg [--attr1 value --attr2 value ...]
 
 Flags:
 -----
+-h --help	: This help message
 -m --message	: The message (data) to pass to the function
 -n --name	: The name of the GCF function to call
---*		: Any argument pairs beginning with -- will get passed as attributes to the called function
+--*		: Any argument pairs beginning with -- will get passed as 
+		  attributes to the called function
 
 See also:
 --------
@@ -51,7 +53,7 @@ do
         	shift
         	shift
         	;;
-        --usage|-u)
+        --help|-h)
         	shift
         	usage
         	exit 0

@@ -8,18 +8,19 @@ Usage:
 -----
 gcf-deploy-pubsub [-l] --name nnnn --topic tttt --entry-point funcName [/path/to/nodefuncdir]
 
-If the codepath is omitted, cwd is assumed.
+If the codepath is omitted, the current working directory is assumed.
 
 Flags:
 -----
 -e --entry-point	: Code entry point function (required)
+-h --help		: This help message
+-l --local		: Deploy locally, to the emulator [cloud]
+-m --memory		: Memory allocation, numeric, in MB (128,256,512,1024,2048) [128]
 -n --name		: GCF name (required)
+-p --project		: The GCP Project to deploy to [current project]
+-s --stage-bucket	: Deployment stage bucket [last utilized stage bucket]
 -t --topic		: Topic channel (required)
 
--l --local		: Deploy locally, to the emulator
--m --memory		: Memory allocation, numeric, in MB (128,256,512,1024,2048) [128]
--p --project		: The GCP Project to deploy to [current project]
--s --stage-bucket	: Deployment stage bucket [last utilitzed stage bucket] (changeme)
 
 See also:
 --------
@@ -89,7 +90,7 @@ do
         	local_deploy=1
         	shift
         	;;
-         --usage|-u)
+         --help|-h)
         	usage
         	exit 0
         	shift

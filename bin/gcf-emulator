@@ -8,17 +8,19 @@
 
 function usage {
 cat <<EOF
-gcf-emulator - Install and control a local GCF emulator
+gcf-emulator - Install and control a local Google Cloud Functions emulator
 
 Usage:
 -----
-gcf-emulator --init | --start | --stop
+gcf-emulator --config default|emulator | --init | --start | --stop
 
 Flags:
 -----
---init	: Install the emulator and set up a mutated version of the current GC config to utilize it
---start	: Flip to the emulator config and start the emulator
---stop	: Restore the default config and stop the emulator
+-c --config		: Swap the gcloud config between 'default' and 'emulator'
+-h --help		: This help message
+-i --init		: Install the emulator and set up a mutated config to utilize it
+--start			: Set the comfig to 'emulator' and start the emulator
+--stop			: Restore the default config and stop the emulator
 
 EOF
 }
@@ -90,20 +92,12 @@ function init_cfe {
 	return 0
 }
 
-function init_perl_dependencies {
-	sudo cpan install App::cpanminus
-	cpanm install JSON::XS
-	cpanm install JSON
-	cpanm install MIME::Base64
-	cpanm install Switch
-}
-
 POSITIONAL=()
 while [[ $# -gt 0 ]]
 do
 key="$1"
 case $key in
-	-c|--config)
+	--config|-c)
 	confname="$2"
 	shift
 	shift
@@ -123,14 +117,13 @@ case $key in
 	functions stop
 	exit $?
 	;;
-	--init)
+	--init|-i)
 	shift
 	init_emulation_config
 	init_cfe
-	init_perl_dependencies
 	exit $?
 	;;
-	--usage|-u)
+	--help|-h)
 	shift
 	usage
 	exit 0

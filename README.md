@@ -1,6 +1,6 @@
 # gcf-tools
 
-This package provides tools to make working with Google Cloud Functions a little easier and faster.
+This package aims to make working with Google Cloud Functions a little easier and faster.
 
 Specifically, the shell commands here (in conjunction with the underlying GCP toolchain) can:
 
@@ -54,7 +54,7 @@ Flags:
 
 `--stage-bucket` is only needed for cloud deploys. Since it's highly likely that ever single cloud deploy for a project will use the same storage bucket, the last-used storage bucket is saved and used as the default when the argument is omitted.
 
-`gcf-deploy-pubsub` will switch the current cloud configuration when it runs, so it's dependent on either using gcf-emulate to set up and manage the emulator or on using the [configuration pattern described in the emulator docs](https://github.com/GoogleCloudPlatform/cloud-functions-emulator/wiki/Using-the-Emulator-with-the-Cloud-SDK) described in the emulator docs.
+`gcf-deploy-pubsub` will switch the current cloud configuration when it runs, so it's dependent on either using gcf-emulate to set up and manage the emulator or on using the [configuration pattern described in the emulator docs](https://github.com/GoogleCloudPlatform/cloud-functions-emulator/wiki/Using-the-Emulator-with-the-Cloud-SDK).
 
 ## gcf-emulate
 Install and control the local Google Cloud Functions Emulator
@@ -71,4 +71,18 @@ Flags:
 --start			: Set the comfig to 'emulator' and start the emulator
 --stop			: Restore the default config and stop the emulator
 ```
+
+# Dependencies
+- `bash`
+- `gcloud`
+- `npm`
+- `Perl5`
+
+# Todo
+## Direct Pubsub Messages from dev_appserver to the emulator
+The original goal of this project was to redirect pubsub messages from a local instance of the Standard Go Environment to the emulator instead of the cloud. It would seem that this should be possible but I was unable to do it. `gcf-emulate` is useful for developing, debugging and testing, but complete local intergration testing is still missing this piece. Tips appreciated.
+
+## Better Environment Checking
+In most (or at least some) cases, the tool will fail sanely if you are missing basics like gcloud, but the handling and messaging for these cases could be cleaner.
+
 

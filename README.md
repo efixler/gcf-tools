@@ -9,7 +9,7 @@ Specifically, the shell commands here (in conjunction with the underlying GCP to
 - Deploy Cloud Functions, both locally and to production
 - Trigger Cloud Pubsub messages easily from the command line including data and attributes
 
-Mostly, the scripts handle the steppiness and complexity of the above tasks and aim to help you develop faster and spent less time trying to grok and remember command line flags. 
+Mostly, the scripts handle the steppiness and complexity of the above tasks and aim to help you develop faster and spend less time trying to grok and remember command line flags. 
 
 ## gcf-call
 

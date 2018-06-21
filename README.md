@@ -12,6 +12,22 @@ Specifically, the shell commands here (in conjunction with the underlying GCP to
 Mostly, the scripts handle the steppiness and complexity of the above tasks and aim to help you develop faster and spend less time trying to grok and remember command line flags. 
 
 ## gcf-call
+Call cloud functions running in the emulator.
+```
+Usage:
+-----
+gcf-call --name funcName --message msg [--attr1 value --attr2 value ...]
+
+Flags:
+-----
+-m --message	: The message (data) to pass to the function
+-n --name	: The name of the GCF function to call
+-u --usage	: This help message
+--*		: Any argument pairs beginning with -- will get passed as 
+		  attributes to the called function
+```
+
+This command spares you from having to base64 encode your message or pass JSON on the command line.
 
 ## gcf-deploy-pubsub
 

@@ -1,12 +1,12 @@
 # gcf-tools
 
-This package aims to make working with Google Cloud Functions a little easier and faster.
+### This package aims to make working with Google Cloud Background Functions a little easier and faster
 
 Specifically, the shell commands here (in conjunction with the underlying GCP toolchain) can:
 
 - Install and configure the Google Cloud Function Emulator
 - Easily switch between cloud and emulator GCF targets
-- Deploy Cloud Functions, both locally and to production
+- Deploy Background Cloud Functions, both locally and to production
 - Trigger Cloud Pubsub messages easily from the command line including data and attributes
 
 Mostly, the scripts handle the steppiness and complexity of the above tasks and aim to help you develop faster and spend less time trying to grok and remember command line flags. 
@@ -30,7 +30,7 @@ Flags:
 This command spares you from having to base64 encode your message or pass JSON on the command line. Use `functions logs read` to read the node log output.
 
 ## gcf-deploy-pubsub
-Deploy GCF Pubsub functions to the emulator or to the cloud
+Deploy GCF Pubsub background functions to the emulator or to the cloud
 ```
 Usage:
 -----
@@ -56,6 +56,8 @@ Flags:
 
 `gcf-deploy-pubsub` will switch the current cloud configuration when it runs, so it's dependent on either using gcf-emulate to set up and manage the emulator or on using the [configuration pattern described in the emulator docs](https://github.com/GoogleCloudPlatform/cloud-functions-emulator/wiki/Using-the-Emulator-with-the-Cloud-SDK).
 
+Node code changes in the emulator are picked up immediately, there's no need to redeploy emulator functions after a deploy.
+
 ## gcf-emulate
 Install and control the local Google Cloud Functions Emulator
 ```
@@ -71,6 +73,8 @@ Flags:
 --start			: Set the comfig to 'emulator' and start the emulator
 --stop			: Restore the default config and stop the emulator
 ```
+# Installation
+Put the `bin` folder into your path (or don't)
 
 # Dependencies
 - `bash`
@@ -78,11 +82,15 @@ Flags:
 - `npm`
 - `Perl5`
 
+# See also
+- [GCF Emulator Docs @ Google](https://cloud.google.com/functions/docs/emulator) 
+- [Cloud Functions Emulator on Github](https://github.com/GoogleCloudPlatform/cloud-functions-emulator)
+
 # Todo
-## Direct Pubsub Messages from dev_appserver to the emulator
+### Direct Pubsub Messages from dev_appserver to the emulator
 The original goal of this project was to redirect pubsub messages from a local instance of the Standard Go Environment to the emulator instead of the cloud. It would seem that this should be possible but I was unable to do it. `gcf-emulate` is useful for developing, debugging and testing, but complete local intergration testing is still missing this piece. Tips appreciated.
 
-## Better Environment Checking
+### Better Environment Checking
 In most (or at least some) cases, the tool will fail sanely if you are missing basics like gcloud, but the handling and messaging for these cases could be cleaner.
 
-
+While the syntactical nuttiness of bash scripting is always fun, I'm sure there are some bits that can be written better. Improvements welcome via PR.

@@ -63,7 +63,7 @@ Install and control the local Google Cloud Functions Emulator
 ```
 Usage:
 -----
-gcf-emulator --config default|emulator | --init | --start | --stop
+gcf-emulate --config default|emulator | --init | --start | --stop
 
 Flags:
 -----

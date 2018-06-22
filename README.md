@@ -58,12 +58,12 @@ Flags:
 
 Node code changes in the emulator are picked up immediately, there's no need to redeploy emulator functions after a deploy.
 
-## gcf-emulate
+## gcf-emulator
 Install and control the local Google Cloud Functions Emulator
 ```
 Usage:
 -----
-gcf-emulate --config default|emulator | --init | --start | --stop
+gcf-emulator --config default|emulator | --init | --start | --stop
 
 Flags:
 -----

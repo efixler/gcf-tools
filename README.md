@@ -70,7 +70,7 @@ Flags:
 -c --config		: Swap the gcloud config between 'default' and 'emulator'
 -h --help		: This help message
 -i --init		: Install the emulator and set up a mutated config to utilize it
---start			: Set the comfig to 'emulator' and start the emulator
+--start			: Set the config to 'emulator' and start the emulator
 --stop			: Restore the default config and stop the emulator
 ```
 # Installation

@@ -56,7 +56,7 @@ Flags:
 
 `gcf-deploy-pubsub` will switch the current cloud configuration when it runs, so it's dependent on either using gcf-emulate to set up and manage the emulator or on using the [configuration pattern described in the emulator docs](https://github.com/GoogleCloudPlatform/cloud-functions-emulator/wiki/Using-the-Emulator-with-the-Cloud-SDK).
 
-Node code changes in the emulator are picked up immediately, there's no need to redeploy emulator functions after a deploy.
+Node code changes in the emulator are picked up immediately, there's no need to redeploy emulator functions after a code change.
 
 ## gcf-emulator
 Install and control the local Google Cloud Functions Emulator

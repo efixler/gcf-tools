@@ -52,7 +52,7 @@ Flags:
 
 `gcf-deploy-pubsub` irons out some of the small differences between deploying to the local emulator and deploying the cloud. 
 
-`--stage-bucket` is only needed for cloud deploys. Since it's highly likely that ever single cloud deploy for a project will use the same storage bucket, the last-used storage bucket is saved and used as the default when the argument is omitted.
+`--stage-bucket` is only needed for cloud deploys. Since it's highly likely that every single cloud deploy for a project will use the same storage bucket, the last-used storage bucket is saved and used as the default when the argument is omitted.
 
 `gcf-deploy-pubsub` will switch the current cloud configuration when it runs, so it's dependent on either using gcf-emulate to set up and manage the emulator or on using the [configuration pattern described in the emulator docs](https://github.com/GoogleCloudPlatform/cloud-functions-emulator/wiki/Using-the-Emulator-with-the-Cloud-SDK).
 

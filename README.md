@@ -11,6 +11,19 @@ Specifically, the shell commands here (in conjunction with the underlying GCP to
 
 Mostly, the scripts handle the steppiness and complexity of the above tasks and aim to help you develop faster and spend less time trying to grok and remember command line flags. 
 
+These scripts were originally written in response to some of the challenges of getting a small team in flow while learning how to develop GCF background functions -- in this context, setup and configuration, and finding an easy way to invoke functions locally, emerged as greater friction points than the actual coding of the Node handlers.
+
+You might find gcf-tools useful if:
+
+- [gcf-emulator] You need to frequently switch your dev environment GCF target between the Cloud Function Emulator and GCP. 
+- [gcf-call] You test cloud functions in your shell and don't enjoy formatting JSON on the command line. 
+- [gcf-deploy-pubsub] You deploy GCF background functions to the cloud and emulator and get confused about the flags and small differences between the two, and/or you sometimes forget to set the right gcloud config when deploying.
+
+The last one is probably less useful for teams that have some sort of orchestration tool for their development environments.
+
+You can, of course, call these scripts from inside your test or build enviroments as well. 
+
+
 ## gcf-call
 Call cloud functions running in the emulator.
 ```
